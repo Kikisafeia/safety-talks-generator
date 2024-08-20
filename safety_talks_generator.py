@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Claude API settings
-API_URL = "https://api.anthropic.com/v1/complete"
+API_URL = "https://api.anthropic.com/v1/chat/completions"
 API_KEY = os.getenv("CLAUDE_API_KEY")
 
 def generate_safety_talk(topic, language="english"):
@@ -28,16 +28,16 @@ def generate_safety_talk(topic, language="english"):
             API_URL,
             headers={
                 "Content-Type": "application/json",
-                "X-API-Key": API_KEY
+                "Authorization": f"Bearer {API_KEY}"
             },
             json={
-                "prompt": prompt,
+                "messages": [{"role": "user", "content": prompt}],
                 "model": "claude-2.0",
-                "max_tokens_to_sample": 500
+                "max_tokens": 500
             }
         )
         response.raise_for_status()
-        return response.json()["completion"]
+        return response.json()["choices"][0]["message"]["content"]
     except requests.RequestException as e:
         st.error(f"Error generating safety talk: {str(e)}")
         return None
